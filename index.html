@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Stop word remover demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="center">
+            <h3>Demo</h3>
+            <h5>Stop words remover (Spanish)</h5>
+        </div>
+        <br>
+        <div class="card">
+            <div class="card-content">
+
+
+                <div class="row">
+
+
+                    <div class="input-field col s12">
+                        <textarea id="input" class="materialize-textarea">Fue un domingo. En el Teatro Royal del sector céntrico de la capital del Cesar se entretenían con la película ‘En busca del oro perdido’. Mientras tanto, al otro lado de la calle alrededor de 30 personas (con participación directa e indirecta) se apoderaban de 24.072 millones de pesos (unos 30 millones de dólares) producto de las consignaciones de fin de semana de las entidades bancarias del centro y norte del Cesar, y del sur de La Guajira.</textarea>
+                        <label for="input">Text</label>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <button id="btn-remove" class="btn">Remove stop words</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <div class="row">
+
+                    <div class="col s12">
+                        <h5>Result</h5>
+                        <div id="output" class="row">
+                            <div class="col s12 center">
+                                <label>Nothing here yet</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        var stop_words;
+        axios.get('https://raw.githubusercontent.com/noras-salman/stopwords-es/master/stopwords-es.json')
+            .then(function(response) {
+                console.log(response.data);
+                stop_words = response.data;
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                // always executed
+            });
+
+        function removeStopWords() {
+            var in_paragraph = document.getElementById('input').value;
+            var words = in_paragraph.replace(/[`~!@#$%^&*()_|+\-=?;:'"’‘,.<>\{\}\[\]\\\/]/gi, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ').replace(/\t/g, ' ').split(" ");
+            var output = "";
+            var output_array = [];
+            for (var i = 0; i < words.length; i++) {
+                var cleaned = words[i].trim().toLowerCase();
+                if (!isNaN(cleaned))
+                    continue;
+                if (!stop_words.includes(cleaned)) {
+                    console.log(cleaned);
+                    if (!output_array.includes(cleaned)) {
+                        output_array.push(cleaned);
+                        output += '<div class="col s4">' + cleaned + '</div>';
+                    }
+                }
+            }
+
+            document.getElementById('output').innerHTML = output;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            M.updateTextFields();
+            document.addEventListener("click", clickHandeler);
+        });
+
+        function clickHandeler(event) {
+            if (event.target.id == 'btn-remove') {
+                removeStopWords();
+            }
+        }
+    </script>
+
+</body>
+
+</html>
